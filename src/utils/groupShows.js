@@ -104,9 +104,9 @@ export const formatAirDate = (dateString) => {
 
 export const getGroupTitle = (status) => {
 	const titles = {
-		"finished-airing": "Latest Season Finished Airing",
-		"currently-airing": "Latest Season Currently Airing",
-		"not-yet-aired": "Latest Season Not Yet Aired",
+		"finished-airing": "Finished Airing",
+		"currently-airing": "Currently Airing",
+		"not-yet-aired": "Not Yet Aired",
 	};
 	return titles[status] || "Unknown";
 };

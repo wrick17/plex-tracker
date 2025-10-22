@@ -103,6 +103,7 @@ export const enrichShowWithSeasonData = async (authToken, show) => {
 			...show,
 			lastSeasonEndDate: lastEpisodeAirDate,
 			lastSeasonStartDate: lastSeason.originallyAvailableAt,
+			lastSeasonIndex: lastSeason.index,
 		};
 	} catch (error) {
 		console.error(`Failed to enrich show ${show.title}:`, error);

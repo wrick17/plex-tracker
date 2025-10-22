@@ -8,6 +8,7 @@ const ShowCard = ({ show }) => {
 	const year = show.year;
 	const seasonCount = show.leafCount || 0;
 	const status = getShowStatus(show);
+	const lastSeasonIndex = show.lastSeasonIndex;
 
 	const seasonEndDate = show.lastSeasonEndDate;
 	const seasonStartDate = show.lastSeasonStartDate || show.originallyAvailableAt;
@@ -22,16 +23,13 @@ const ShowCard = ({ show }) => {
 		});
 	};
 
-	const getBadgeText = () => {
+	const getDateText = () => {
 		if (seasonEndDate) {
 			const endDate = new Date(seasonEndDate);
 			const now = new Date();
 
-			if (status === "currently-airing") {
-				if (endDate > now) {
-					return `Ends on ${formatDate(seasonEndDate)}`;
-				}
-				return `Ended ${formatDate(seasonEndDate)}`;
+			if (status === "currently-airing" && endDate > now) {
+				return `Ends on ${formatDate(seasonEndDate)}`;
 			}
 			return `Ended ${formatDate(seasonEndDate)}`;
 		}
@@ -46,9 +44,17 @@ const ShowCard = ({ show }) => {
 		return null;
 	};
 
+	const getBadgeText = () => {
+		const dateText = getDateText();
+		if (!dateText) return null;
+
+		const seasonPrefix = lastSeasonIndex ? `S${lastSeasonIndex}: ` : "";
+		return `${seasonPrefix}${dateText}`;
+	};
+
 	const handleCardClick = () => {
-		const deeplink = show.guid;
 		const webUrl = show.publicPagesURL;
+		const deeplink = webUrl.replace("https://watch.plex.tv/", "plex://");
 
 		const hasDeeplink = Boolean(deeplink);
 		const hasWebUrl = Boolean(webUrl);
@@ -58,23 +64,15 @@ const ShowCard = ({ show }) => {
 		}
 
 		if (hasDeeplink) {
-			const iframe = document.createElement("iframe");
-			iframe.style.display = "none";
-			iframe.src = deeplink;
-			document.body.appendChild(iframe);
-
-			// Attempt deeplink first, then fallback to web URL if app isn't installed
-			// setTimeout allows time for the OS to handle the deeplink before checking if we're still visible
+			window.location = deeplink;
 			setTimeout(() => {
-				document.body.removeChild(iframe);
-				if (!hasWebUrl) return;
-				if (document.visibilityState === "visible") {
+				if (document.hasFocus()) {
 					window.open(webUrl, "_blank", "noopener,noreferrer");
 				}
-			}, 1000);
-		} else if (hasWebUrl) {
-			window.open(webUrl, "_blank", "noopener,noreferrer");
+			}, 100);
+			return;
 		}
+		window.open(webUrl, "_blank", "noopener,noreferrer");
 	};
 
 	const badgeText = getBadgeText();
