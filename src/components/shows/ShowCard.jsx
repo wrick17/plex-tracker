@@ -17,7 +17,7 @@ const ShowCard = ({ show }) => {
 		if (!dateString) return "";
 		const date = new Date(dateString);
 		return date.toLocaleDateString("en-US", {
-			year: "numeric",
+			year: "2-digit",
 			month: "short",
 			day: "numeric",
 		});
@@ -29,7 +29,7 @@ const ShowCard = ({ show }) => {
 			const now = new Date();
 
 			if (status === "currently-airing" && endDate > now) {
-				return `Ends on ${formatDate(seasonEndDate)}`;
+				return `Ends ${formatDate(seasonEndDate)}`;
 			}
 			return `Ended ${formatDate(seasonEndDate)}`;
 		}
