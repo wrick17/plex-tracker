@@ -1,13 +1,11 @@
-import { LogOut, Monitor, Moon, RefreshCw, Sun } from "lucide-react";
+import { LogOut, Monitor, Moon, Sun } from "lucide-react";
 import useAuthStore from "../../stores/authStore";
-import useRefreshStore from "../../stores/refreshStore";
 import useThemeStore from "../../stores/themeStore";
 import { Button } from "../ui/Button";
 
-const Header = ({ onRefresh, isRefreshing }) => {
+const Header = () => {
 	const { theme, setTheme } = useThemeStore();
 	const { clearAuth, user } = useAuthStore();
-	const { autoRefresh, setAutoRefresh } = useRefreshStore();
 
 	const cycleTheme = () => {
 		const themes = ["light", "dark", "system"];
@@ -40,26 +38,6 @@ const Header = ({ onRefresh, isRefreshing }) => {
 				</div>
 
 				<div className="flex items-center gap-2">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => setAutoRefresh(!autoRefresh)}
-						title={autoRefresh ? "Disable auto-refresh" : "Enable auto-refresh"}
-						className={autoRefresh ? "bg-zinc-100 dark:bg-zinc-800" : ""}
-					>
-						<RefreshCw className={`h-5 w-5 ${autoRefresh ? "text-blue-500" : ""}`} />
-					</Button>
-
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={onRefresh}
-						disabled={isRefreshing}
-						title="Refresh watchlist"
-					>
-						<RefreshCw className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`} />
-					</Button>
-
 					<Button variant="ghost" size="icon" onClick={cycleTheme} title={`Theme: ${theme}`}>
 						{getThemeIcon()}
 					</Button>

@@ -18,7 +18,7 @@ const LoginButton = () => {
 			const pinData = await generatePlexPin();
 			const authUrl = getPlexAuthUrl(pinData.id, pinData.code);
 
-			const authWindow = window.open(authUrl, "PlexAuth", "width=600,height=700");
+			const authWindow = window.open(authUrl, "_blank");
 
 			const checkInterval = setInterval(async () => {
 				try {
