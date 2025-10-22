@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Configure dark mode to use class-only (no media query) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html.light {
+	color-scheme: light;
+}
+
+html.dark {
+	color-scheme: dark;
+}
+
+html,
+body {
+	@apply bg-zinc-50;
+	margin: 0;
+	padding: 0;
+	min-height: 100vh;
+}
+
+html.dark body {
+	@apply bg-zinc-900;
+}
+
+#root {
+	min-height: 100vh;
+}
