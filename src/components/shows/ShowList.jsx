@@ -43,6 +43,7 @@ const ShowList = ({ shows, isLoading, error }) => {
 	const hasShows =
 		groupedShows["finished-airing"].length > 0 ||
 		groupedShows["currently-airing"].length > 0 ||
+		groupedShows["recently-ended"].length > 0 ||
 		groupedShows["not-yet-aired"].length > 0;
 
 	if (!hasShows) {
@@ -61,8 +62,9 @@ const ShowList = ({ shows, isLoading, error }) => {
 	}
 
 	return (
-		<div className="space-y-12">
+		<div>
 			<ShowGroup status="currently-airing" shows={groupedShows["currently-airing"]} />
+			<ShowGroup status="recently-ended" shows={groupedShows["recently-ended"]} />
 			<ShowGroup status="not-yet-aired" shows={groupedShows["not-yet-aired"]} />
 			<ShowGroup status="finished-airing" shows={groupedShows["finished-airing"]} />
 		</div>

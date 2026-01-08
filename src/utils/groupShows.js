@@ -15,6 +15,10 @@ export const getShowStatus = (show) => {
 			return "currently-airing";
 		}
 
+		if (daysSinceEnd <= 90) {
+			return "recently-ended";
+		}
+
 		return "finished-airing";
 	}
 
@@ -55,6 +59,7 @@ export const groupShows = (shows) => {
 		return {
 			"finished-airing": [],
 			"currently-airing": [],
+			"recently-ended": [],
 			"not-yet-aired": [],
 		};
 	}
@@ -64,6 +69,7 @@ export const groupShows = (shows) => {
 	const grouped = {
 		"finished-airing": [],
 		"currently-airing": [],
+		"recently-ended": [],
 		"not-yet-aired": [],
 	};
 
@@ -76,8 +82,8 @@ export const groupShows = (shows) => {
 
 	for (const key of Object.keys(grouped)) {
 		grouped[key].sort((a, b) => {
-			const dateA = new Date(a.lastViewedAt || a.originallyAvailableAt || a.year);
-			const dateB = new Date(b.lastViewedAt || b.originallyAvailableAt || b.year);
+			const dateA = new Date(a.lastSeasonEndDate || a.lastSeasonStartDate || a.originallyAvailableAt || a.year);
+			const dateB = new Date(b.lastSeasonEndDate || b.lastSeasonStartDate || b.originallyAvailableAt || b.year);
 			return dateB - dateA;
 		});
 	}
@@ -106,6 +112,7 @@ export const getGroupTitle = (status) => {
 	const titles = {
 		"finished-airing": "Finished Airing",
 		"currently-airing": "Currently Airing",
+		"recently-ended": "Recently Ended",
 		"not-yet-aired": "Not Yet Aired",
 	};
 	return titles[status] || "Unknown";
