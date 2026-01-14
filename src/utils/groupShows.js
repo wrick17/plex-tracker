@@ -84,6 +84,10 @@ export const groupShows = (shows) => {
 		grouped[key].sort((a, b) => {
 			const dateA = new Date(a.lastSeasonEndDate || a.lastSeasonStartDate || a.originallyAvailableAt || a.year);
 			const dateB = new Date(b.lastSeasonEndDate || b.lastSeasonStartDate || b.originallyAvailableAt || b.year);
+			// For currently-airing, sort ascending so shows finishing soonest appear first
+			if (key === "currently-airing") {
+				return dateA - dateB;
+			}
 			return dateB - dateA;
 		});
 	}
