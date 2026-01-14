@@ -3,10 +3,13 @@ import { useEffect } from "react";
 import { fetchWatchlist } from "../services/plexApi";
 import useAuthStore from "../stores/authStore";
 import useRefreshStore from "../stores/refreshStore";
+import { groupShows } from "../utils/groupShows";
+import { useTodoistSync } from "./useTodoistSync";
 
 export const usePlexWatchlist = () => {
 	const authToken = useAuthStore((state) => state.authToken);
 	const { autoRefresh, refreshInterval } = useRefreshStore();
+	const { syncToTodoist } = useTodoistSync();
 
 	const query = useQuery({
 		queryKey: ["watchlist", authToken],
@@ -16,6 +19,13 @@ export const usePlexWatchlist = () => {
 		refetchInterval: autoRefresh ? refreshInterval : false,
 		refetchOnWindowFocus: false,
 	});
+
+	useEffect(() => {
+		if (query.data && query.isSuccess) {
+			const groupedShows = groupShows(query.data);
+			syncToTodoist(groupedShows);
+		}
+	}, [query.data, query.isSuccess, syncToTodoist]);
 
 	return query;
 };

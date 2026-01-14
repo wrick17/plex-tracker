@@ -1,11 +1,14 @@
-import { LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
+import { useState } from "react";
 import useAuthStore from "../../stores/authStore";
 import useThemeStore from "../../stores/themeStore";
+import TodoistSettings from "../settings/TodoistSettings";
 import { Button } from "../ui/Button";
 
 const Header = () => {
 	const { theme, setTheme } = useThemeStore();
 	const { clearAuth, user } = useAuthStore();
+	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
 	const cycleTheme = () => {
 		const themes = ["light", "dark", "system"];
@@ -42,11 +45,22 @@ const Header = () => {
 						{getThemeIcon()}
 					</Button>
 
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => setIsSettingsOpen(true)}
+						title="Todoist Settings"
+					>
+						<Settings className="h-5 w-5" />
+					</Button>
+
 					<Button variant="ghost" size="icon" onClick={clearAuth} title="Sign out">
 						<LogOut className="h-5 w-5" />
 					</Button>
 				</div>
 			</div>
+
+			<TodoistSettings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 		</header>
 	);
 };
