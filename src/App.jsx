@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
 
 const MainApp = () => {
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-	const { data: shows, isLoading, error } = usePlexWatchlist();
+	const { data: shows, isLoading, isRefreshing, error, refetch } = usePlexWatchlist();
 
 	if (!isAuthenticated) {
 		return <LoginPage />;
@@ -26,7 +26,7 @@ const MainApp = () => {
 
 	return (
 		<div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-			<Header />
+			<Header onRefetch={refetch} isRefreshing={isRefreshing} />
 			<main className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
 				<ShowList shows={shows} isLoading={isLoading} error={error} />
 			</main>

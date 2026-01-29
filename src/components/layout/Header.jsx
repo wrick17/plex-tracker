@@ -1,15 +1,11 @@
-import { LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
-import { useState } from "react";
+import { LogOut, Monitor, Moon, RefreshCw, Sun } from "lucide-react";
 import useAuthStore from "../../stores/authStore";
 import useThemeStore from "../../stores/themeStore";
-import TodoistSettings from "../settings/TodoistSettings";
 import { Button } from "../ui/Button";
 
-const Header = () => {
+const Header = ({ onRefetch, isRefreshing }) => {
 	const { theme, setTheme } = useThemeStore();
 	const { clearAuth, user } = useAuthStore();
-	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
 	const cycleTheme = () => {
 		const themes = ["light", "dark", "system"];
 		const currentIndex = themes.indexOf(theme);
@@ -41,17 +37,18 @@ const Header = () => {
 				</div>
 
 				<div className="flex items-center gap-2">
-					<Button variant="ghost" size="icon" onClick={cycleTheme} title={`Theme: ${theme}`}>
-						{getThemeIcon()}
-					</Button>
-
 					<Button
 						variant="ghost"
 						size="icon"
-						onClick={() => setIsSettingsOpen(true)}
-						title="Todoist Settings"
+						onClick={onRefetch}
+						disabled={isRefreshing}
+						title="Refresh all data"
 					>
-						<Settings className="h-5 w-5" />
+						<RefreshCw className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`} />
+					</Button>
+
+					<Button variant="ghost" size="icon" onClick={cycleTheme} title={`Theme: ${theme}`}>
+						{getThemeIcon()}
 					</Button>
 
 					<Button variant="ghost" size="icon" onClick={clearAuth} title="Sign out">
@@ -59,8 +56,6 @@ const Header = () => {
 					</Button>
 				</div>
 			</div>
-
-			<TodoistSettings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 		</header>
 	);
 };

@@ -1,46 +1,106 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { fetchWatchlist } from "../services/plexApi";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { enrichShowWithSeasonData, fetchWatchlist } from "../services/plexApi";
 import useAuthStore from "../stores/authStore";
-import useRefreshStore from "../stores/refreshStore";
-import { groupShows } from "../utils/groupShows";
-import { useTodoistSync } from "./useTodoistSync";
+import useWatchlistCacheStore from "../stores/watchlistCacheStore";
+import { getShowStatus } from "../utils/groupShows";
 
 export const usePlexWatchlist = () => {
 	const authToken = useAuthStore((state) => state.authToken);
-	const { autoRefresh, refreshInterval } = useRefreshStore();
-	const { syncToTodoist } = useTodoistSync();
+	const { cachedShows, setCachedShows, hasCachedData } = useWatchlistCacheStore();
+	const [shows, setShows] = useState(cachedShows);
+	const [isLoading, setIsLoading] = useState(!hasCachedData());
+	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [error, setError] = useState(null);
 
-	const query = useQuery({
-		queryKey: ["watchlist", authToken],
-		queryFn: () => fetchWatchlist(authToken),
-		enabled: !!authToken,
-		staleTime: 2 * 60 * 1000,
-		refetchInterval: autoRefresh ? refreshInterval : false,
-		refetchOnWindowFocus: false,
-	});
+	const refreshCurrentlyAiring = useCallback(
+		async (currentShows) => {
+			if (!(authToken && currentShows)) return currentShows;
 
-	useEffect(() => {
-		if (query.data && query.isSuccess) {
-			const groupedShows = groupShows(query.data);
-			syncToTodoist(groupedShows);
+			const currentlyAiringShows = currentShows.filter(
+				(show) => getShowStatus(show) === "currently-airing"
+			);
+
+			if (currentlyAiringShows.length === 0) return currentShows;
+
+			const refreshedShows = await Promise.all(
+				currentlyAiringShows.map((show) => enrichShowWithSeasonData(authToken, show))
+			);
+
+			const refreshedMap = new Map(refreshedShows.map((show) => [show.ratingKey, show]));
+
+			return currentShows.map((show) => refreshedMap.get(show.ratingKey) || show);
+		},
+		[authToken]
+	);
+
+	const fetchAll = useCallback(async () => {
+		if (!authToken) return;
+
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			const data = await fetchWatchlist(authToken);
+			setShows(data);
+			setCachedShows(data);
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setIsLoading(false);
 		}
-	}, [query.data, query.isSuccess, syncToTodoist]);
+	}, [authToken, setCachedShows]);
 
-	return query;
-};
+	const refetch = useCallback(async () => {
+		if (!authToken) return;
 
-export const useAutoRefresh = (refetch) => {
-	const { autoRefresh, refreshInterval } = useRefreshStore();
+		setIsRefreshing(true);
+		setError(null);
+
+		try {
+			const data = await fetchWatchlist(authToken);
+			setShows(data);
+			setCachedShows(data);
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setIsRefreshing(false);
+		}
+	}, [authToken, setCachedShows]);
 
 	useEffect(() => {
-		const shouldRefresh = autoRefresh && refetch;
-		if (!shouldRefresh) return;
+		if (!authToken) return;
 
-		const interval = setInterval(() => {
-			refetch();
-		}, refreshInterval);
+		if (hasCachedData() && cachedShows) {
+			setShows(cachedShows);
+			setIsLoading(false);
 
-		return () => clearInterval(interval);
-	}, [autoRefresh, refreshInterval, refetch]);
+			setIsRefreshing(true);
+			refreshCurrentlyAiring(cachedShows)
+				.then((updatedShows) => {
+					setShows(updatedShows);
+					setCachedShows(updatedShows);
+				})
+				.catch((err) => {
+					console.error("Failed to refresh currently airing:", err);
+				})
+				.finally(() => {
+					setIsRefreshing(false);
+				});
+		} else {
+			fetchAll();
+		}
+	}, [authToken]);
+
+	const data = useMemo(() => shows, [shows]);
+
+	return {
+		data,
+		isLoading,
+		isRefreshing,
+		error,
+		refetch,
+		isSuccess: !(isLoading || error) && data !== null,
+	};
 };
+
+export default usePlexWatchlist;
