@@ -32,25 +32,9 @@ const buildTaskDescription = (show) => {
 	return parts.join("\n\n");
 };
 
-const getShowDueDate = (show) => {
-	const dateString = show.lastSeasonEndDate || show.lastSeasonStartDate;
-	if (!dateString) return null;
-
-	const date = new Date(dateString);
-	if (Number.isNaN(date.getTime())) return null;
-
-	return date.toISOString().split("T")[0];
-};
-
 const needsUpdate = (existingTask, show) => {
 	const newDescription = buildTaskDescription(show);
-	const newDueDate = getShowDueDate(show);
-
-	const descriptionChanged = existingTask.description !== newDescription;
-	const existingDueDate = existingTask.due?.date || null;
-	const dueDateChanged = existingDueDate !== newDueDate;
-
-	return descriptionChanged || dueDateChanged;
+	return existingTask.description !== newDescription;
 };
 
 const SECTION_ORDER = ["currently-airing", "recently-ended", "not-yet-aired", "finished-airing"];
@@ -135,8 +119,7 @@ export const useTodoistSync = () => {
 								projectId,
 								targetSectionId,
 								show.title,
-								buildTaskDescription(show),
-								getShowDueDate(show)
+								buildTaskDescription(show)
 							);
 						} else {
 							const updates = {};
@@ -149,10 +132,6 @@ export const useTodoistSync = () => {
 
 							if (needsUpdate(existingTask, show)) {
 								updates.description = buildTaskDescription(show);
-								const dueDate = getShowDueDate(show);
-								if (dueDate) {
-									updates.due_date = dueDate;
-								}
 								hasUpdates = true;
 							}
 
