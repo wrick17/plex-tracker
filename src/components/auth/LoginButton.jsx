@@ -43,7 +43,7 @@ const LoginButton = () => {
 					setIsLoading(false);
 					if (authWindow) authWindow.close();
 				},
-				5 * 60 * 1000
+				5 * 60 * 1000,
 			);
 		} catch (error) {
 			console.error("Login error:", error);

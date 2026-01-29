@@ -31,8 +31,8 @@ const useWatchlistCacheStore = create(
 		}),
 		{
 			name: "watchlist-cache",
-		}
-	)
+		},
+	),
 );
 
 export default useWatchlistCacheStore;

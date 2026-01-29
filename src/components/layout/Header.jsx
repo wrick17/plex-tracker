@@ -28,7 +28,9 @@ const Header = ({ onRefetch, isRefreshing }) => {
 		<header className="w-full border-zinc-200 border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60 dark:border-zinc-800 dark:bg-zinc-950/95 dark:supports-backdrop-filter:bg-zinc-950/60">
 			<div className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4 sm:px-6 lg:px-8">
 				<div className="flex items-center gap-2">
-					<h1 className="font-bold text-xl text-zinc-900 dark:text-zinc-50">Plex Tracker</h1>
+					<h1 className="font-bold text-xl text-zinc-900 dark:text-zinc-50">
+						Plex Tracker
+					</h1>
 					{user && (
 						<span className="hidden text-sm text-zinc-500 sm:inline dark:text-zinc-400">
 							• {user.username || user.email}
@@ -47,7 +49,12 @@ const Header = ({ onRefetch, isRefreshing }) => {
 						<RefreshCw className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`} />
 					</Button>
 
-					<Button variant="ghost" size="icon" onClick={cycleTheme} title={`Theme: ${theme}`}>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={cycleTheme}
+						title={`Theme: ${theme}`}
+					>
 						{getThemeIcon()}
 					</Button>
 

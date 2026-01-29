@@ -97,7 +97,8 @@ const ShowCard = ({ show }) => {
 				{year && (
 					<CardDescription className="text-xs">
 						{year}
-						{seasonCount > 0 && ` • ${seasonCount} episode${seasonCount !== 1 ? "s" : ""}`}
+						{seasonCount > 0 &&
+							` • ${seasonCount} episode${seasonCount !== 1 ? "s" : ""}`}
 					</CardDescription>
 				)}
 			</CardHeader>

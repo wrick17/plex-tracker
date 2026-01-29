@@ -3,6 +3,15 @@ import { groupShows } from "../../utils/groupShows";
 import { Skeleton } from "../ui/Skeleton";
 import ShowGroup from "./ShowGroup";
 
+const skeletonKeys = [
+	"skeleton-1",
+	"skeleton-2",
+	"skeleton-3",
+	"skeleton-4",
+	"skeleton-5",
+	"skeleton-6",
+];
+
 const ShowList = ({ shows, isLoading, error }) => {
 	const groupedShows = useMemo(() => groupShows(shows), [shows]);
 
@@ -12,8 +21,8 @@ const ShowList = ({ shows, isLoading, error }) => {
 				<div className="space-y-4">
 					<Skeleton className="h-8 w-64" />
 					<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-						{Array.from({ length: 6 }).map((_, i) => (
-							<div key={`skeleton-${i}`} className="space-y-2">
+						{skeletonKeys.map((key) => (
+							<div key={key} className="space-y-2">
 								<Skeleton className="aspect-2/3 w-full" />
 								<Skeleton className="h-4 w-3/4" />
 								<Skeleton className="h-3 w-1/2" />

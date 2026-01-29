@@ -17,20 +17,20 @@ export const usePlexWatchlist = () => {
 			if (!(authToken && currentShows)) return currentShows;
 
 			const currentlyAiringShows = currentShows.filter(
-				(show) => getShowStatus(show) === "currently-airing"
+				(show) => getShowStatus(show) === "currently-airing",
 			);
 
 			if (currentlyAiringShows.length === 0) return currentShows;
 
 			const refreshedShows = await Promise.all(
-				currentlyAiringShows.map((show) => enrichShowWithSeasonData(authToken, show))
+				currentlyAiringShows.map((show) => enrichShowWithSeasonData(authToken, show)),
 			);
 
 			const refreshedMap = new Map(refreshedShows.map((show) => [show.ratingKey, show]));
 
 			return currentShows.map((show) => refreshedMap.get(show.ratingKey) || show);
 		},
-		[authToken]
+		[authToken],
 	);
 
 	const fetchAll = useCallback(async () => {
@@ -89,7 +89,7 @@ export const usePlexWatchlist = () => {
 		} else {
 			fetchAll();
 		}
-	}, [authToken]);
+	}, [authToken, cachedShows, fetchAll, hasCachedData, refreshCurrentlyAiring, setCachedShows]);
 
 	const data = useMemo(() => shows, [shows]);
 

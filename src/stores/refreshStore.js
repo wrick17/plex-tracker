@@ -11,8 +11,8 @@ const useRefreshStore = create(
 		}),
 		{
 			name: "refresh-settings",
-		}
-	)
+		},
+	),
 );
 
 export default useRefreshStore;

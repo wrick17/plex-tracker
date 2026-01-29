@@ -28,8 +28,8 @@ const useThemeStore = create(
 					state.updateResolvedTheme();
 				}
 			},
-		}
-	)
+		},
+	),
 );
 
 export default useThemeStore;

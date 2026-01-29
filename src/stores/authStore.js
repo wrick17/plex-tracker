@@ -24,8 +24,8 @@ const useAuthStore = create(
 		}),
 		{
 			name: "plex-auth-storage",
-		}
-	)
+		},
+	),
 );
 
 export default useAuthStore;

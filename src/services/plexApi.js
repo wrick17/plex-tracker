@@ -13,7 +13,7 @@ export const fetchWatchlist = async (authToken) => {
 				"X-Plex-Product": "Plex Tracker",
 				"X-Plex-Platform": "Web",
 			},
-		}
+		},
 	);
 
 	if (!response.ok) {
@@ -24,7 +24,7 @@ export const fetchWatchlist = async (authToken) => {
 	const shows = data.MediaContainer?.Metadata || [];
 
 	const enrichedShows = await Promise.all(
-		shows.map((show) => enrichShowWithSeasonData(authToken, show))
+		shows.map((show) => enrichShowWithSeasonData(authToken, show)),
 	);
 
 	return enrichedShows;
@@ -56,7 +56,7 @@ export const fetchShowSeasons = async (authToken, ratingKey) => {
 				"X-Plex-Token": authToken,
 				"X-Plex-Client-Identifier": PLEX_CLIENT_ID,
 			},
-		}
+		},
 	);
 
 	if (!response.ok) {
@@ -81,7 +81,7 @@ export const fetchSeasonEpisodes = async (authToken, seasonRatingKey) => {
 					"X-Plex-Token": authToken,
 					"X-Plex-Client-Identifier": PLEX_CLIENT_ID,
 				},
-			}
+			},
 		);
 
 		if (!response.ok) {
