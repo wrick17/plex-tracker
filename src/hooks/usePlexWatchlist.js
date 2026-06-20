@@ -1,16 +1,23 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { enrichShowWithSeasonData, fetchWatchlist } from "../services/plexApi";
 import useAuthStore from "../stores/authStore";
 import useWatchlistCacheStore from "../stores/watchlistCacheStore";
 import { getShowStatus } from "../utils/groupShows";
 
+export const shouldRefreshCachedShows = (authToken, cachedShows, refreshedCachedToken) => {
+	return Boolean(authToken && cachedShows && refreshedCachedToken !== authToken);
+};
+
 export const usePlexWatchlist = () => {
 	const authToken = useAuthStore((state) => state.authToken);
-	const { cachedShows, setCachedShows, hasCachedData } = useWatchlistCacheStore();
+	const cachedShows = useWatchlistCacheStore((state) => state.cachedShows);
+	const setCachedShows = useWatchlistCacheStore((state) => state.setCachedShows);
+	const hasCachedData = useWatchlistCacheStore((state) => state.hasCachedData);
 	const [shows, setShows] = useState(cachedShows);
 	const [isLoading, setIsLoading] = useState(!hasCachedData());
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [error, setError] = useState(null);
+	const refreshedCachedTokenRef = useRef(null);
 
 	const refreshCurrentlyAiring = useCallback(
 		async (currentShows) => {
@@ -68,12 +75,22 @@ export const usePlexWatchlist = () => {
 	}, [authToken, setCachedShows]);
 
 	useEffect(() => {
-		if (!authToken) return;
+		if (!authToken) {
+			refreshedCachedTokenRef.current = null;
+			return;
+		}
 
 		if (hasCachedData() && cachedShows) {
 			setShows(cachedShows);
 			setIsLoading(false);
 
+			if (
+				!shouldRefreshCachedShows(authToken, cachedShows, refreshedCachedTokenRef.current)
+			) {
+				return;
+			}
+
+			refreshedCachedTokenRef.current = authToken;
 			setIsRefreshing(true);
 			refreshCurrentlyAiring(cachedShows)
 				.then((updatedShows) => {

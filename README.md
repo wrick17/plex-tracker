@@ -36,19 +36,19 @@ bun install
 Start the dev server, and the app will be available at [http://localhost:3000](http://localhost:3000):
 
 ```bash
-bun dev
+bun run dev
 ```
 
 Build the app for production:
 
 ```bash
-bun build
+bun run build
 ```
 
 Preview the production build locally:
 
 ```bash
-bun preview
+bun run preview
 ```
 
 ## Code Quality
@@ -72,3 +72,8 @@ bun biome check --write src/
 3. Shows are automatically grouped by their latest season's airing status
 4. Enable auto-refresh to keep your watchlist up-to-date
 5. Switch between light and dark themes based on your preference
+
+## Maintenance Notes
+
+- Cached watchlist data renders immediately on app load, then currently airing shows get one background season refresh per authenticated token. This prevents the cache write from retriggering the same Plex `children` requests indefinitely.
+- Use `bun run test`, `bun run lint`, and `bun run build` before shipping changes.
