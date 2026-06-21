@@ -1,15 +1,20 @@
 const PLEX_API_BASE = "https://metadata.provider.plex.tv";
 const PLEX_DISCOVER_API = "https://discover.provider.plex.tv";
 const PLEX_CLIENT_ID = "plex-tracker-app";
+const WATCHLIST_PAGE_SIZE = 100;
 
-export const fetchWatchlist = async (authToken) => {
+const plexHeaders = (authToken) => ({
+	Accept: "application/json",
+	"X-Plex-Token": authToken,
+	"X-Plex-Client-Identifier": PLEX_CLIENT_ID,
+});
+
+const fetchWatchlistPage = async (authToken, start) => {
 	const response = await fetch(
-		`${PLEX_DISCOVER_API}/library/sections/watchlist/all?X-Plex-Container-Size=100&X-Plex-Container-Start=0`,
+		`${PLEX_DISCOVER_API}/library/sections/watchlist/all?X-Plex-Container-Size=${WATCHLIST_PAGE_SIZE}&X-Plex-Container-Start=${start}`,
 		{
 			headers: {
-				Accept: "application/json",
-				"X-Plex-Token": authToken,
-				"X-Plex-Client-Identifier": PLEX_CLIENT_ID,
+				...plexHeaders(authToken),
 				"X-Plex-Product": "Plex Tracker",
 				"X-Plex-Platform": "Web",
 			},
@@ -21,22 +26,36 @@ export const fetchWatchlist = async (authToken) => {
 	}
 
 	const data = await response.json();
-	const shows = data.MediaContainer?.Metadata || [];
-
-	const enrichedShows = await Promise.all(
-		shows.map((show) => enrichShowWithSeasonData(authToken, show)),
-	);
-
-	return enrichedShows;
+	return {
+		items: data.MediaContainer?.Metadata || [],
+		totalSize: data.MediaContainer?.totalSize || 0,
+	};
 };
 
-export const fetchShowMetadata = async (authToken, ratingKey) => {
+export const fetchWatchlist = async (authToken) => {
+	const media = [];
+	let start = 0;
+	let totalSize = null;
+
+	while (totalSize === null || start < totalSize) {
+		const { items, totalSize: pageTotalSize } = await fetchWatchlistPage(authToken, start);
+		media.push(...items);
+		totalSize = pageTotalSize;
+		start += items.length;
+
+		if (items.length === 0) break;
+	}
+
+	const enrichedMedia = await Promise.all(
+		media.map((item) => enrichMediaWithMetadata(authToken, item)),
+	);
+
+	return enrichedMedia;
+};
+
+export const fetchMediaMetadata = async (authToken, ratingKey) => {
 	const response = await fetch(`${PLEX_API_BASE}/library/metadata/${ratingKey}`, {
-		headers: {
-			Accept: "application/json",
-			"X-Plex-Token": authToken,
-			"X-Plex-Client-Identifier": PLEX_CLIENT_ID,
-		},
+		headers: plexHeaders(authToken),
 	});
 
 	if (!response.ok) {
@@ -47,15 +66,13 @@ export const fetchShowMetadata = async (authToken, ratingKey) => {
 	return data.MediaContainer?.Metadata?.[0] || null;
 };
 
+export const fetchShowMetadata = fetchMediaMetadata;
+
 export const fetchShowSeasons = async (authToken, ratingKey) => {
 	const response = await fetch(
 		`${PLEX_API_BASE}/library/metadata/${ratingKey}/children?X-Plex-Container-Size=100&X-Plex-Container-Start=0`,
 		{
-			headers: {
-				Accept: "application/json",
-				"X-Plex-Token": authToken,
-				"X-Plex-Client-Identifier": PLEX_CLIENT_ID,
-			},
+			headers: plexHeaders(authToken),
 		},
 	);
 
@@ -76,11 +93,7 @@ export const fetchSeasonEpisodes = async (authToken, seasonRatingKey) => {
 		const response = await fetch(
 			`${PLEX_API_BASE}/library/metadata/${seasonRatingKey}/children?X-Plex-Container-Start=${offset}`,
 			{
-				headers: {
-					Accept: "application/json",
-					"X-Plex-Token": authToken,
-					"X-Plex-Client-Identifier": PLEX_CLIENT_ID,
-				},
+				headers: plexHeaders(authToken),
 			},
 		);
 
@@ -99,6 +112,21 @@ export const fetchSeasonEpisodes = async (authToken, seasonRatingKey) => {
 	}
 
 	return allEpisodes;
+};
+
+export const enrichMediaWithMetadata = async (authToken, item) => {
+	let media = item;
+
+	try {
+		const metadata = await fetchMediaMetadata(authToken, item.ratingKey);
+		if (metadata) {
+			media = { ...item, ...metadata };
+		}
+	} catch (error) {
+		console.warn(`Failed to enrich metadata for ${item.title}:`, error);
+	}
+
+	return enrichShowWithSeasonData(authToken, media);
 };
 
 export const enrichShowWithSeasonData = async (authToken, show) => {

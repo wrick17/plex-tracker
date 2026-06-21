@@ -6,7 +6,7 @@ const ShowCard = ({ show }) => {
 	const posterUrl = show.thumb || show.art;
 	const title = show.title || "Unknown Title";
 	const year = show.year;
-	const seasonCount = show.leafCount || 0;
+	const episodeCount = show.type === "show" ? show.leafCount || 0 : 0;
 	const status = getShowStatus(show);
 	const lastSeasonIndex = show.lastSeasonIndex;
 
@@ -24,6 +24,10 @@ const ShowCard = ({ show }) => {
 	};
 
 	const getDateText = () => {
+		if (status === "not-yet-aired" && seasonStartDate) {
+			return `Starts airing on ${formatDate(seasonStartDate)}`;
+		}
+
 		if (seasonEndDate) {
 			const endDate = new Date(seasonEndDate);
 			const now = new Date();
@@ -35,9 +39,6 @@ const ShowCard = ({ show }) => {
 		}
 
 		if (seasonStartDate) {
-			if (status === "not-yet-aired") {
-				return `Airs ${formatDate(seasonStartDate)}`;
-			}
 			return `Aired ${formatDate(seasonStartDate)}`;
 		}
 
@@ -54,7 +55,7 @@ const ShowCard = ({ show }) => {
 
 	const handleCardClick = () => {
 		const webUrl = show.publicPagesURL;
-		const deeplink = webUrl.replace("https://watch.plex.tv/", "plex://");
+		const deeplink = webUrl?.replace("https://watch.plex.tv/", "plex://");
 
 		const hasDeeplink = Boolean(deeplink);
 		const hasWebUrl = Boolean(webUrl);
@@ -97,8 +98,8 @@ const ShowCard = ({ show }) => {
 				{year && (
 					<CardDescription className="text-xs">
 						{year}
-						{seasonCount > 0 &&
-							` • ${seasonCount} episode${seasonCount !== 1 ? "s" : ""}`}
+						{episodeCount > 0 &&
+							` • ${episodeCount} episode${episodeCount !== 1 ? "s" : ""}`}
 					</CardDescription>
 				)}
 			</CardHeader>

@@ -36,9 +36,11 @@ Once logged in, you'll see:
 - **Theme Toggle**: Click to cycle through Light → Dark → System themes
 - **Logout Button**: Sign out of your account
 
-#### Show Groups
+#### Title Groups
 
-Your shows are automatically organized into three groups:
+Your watchlist is organized by the selected floating view controls.
+
+Default airing-date groups:
 
 1. **Latest Season Currently Airing**
    - Shows with episodes that aired in the last 90 days
@@ -48,16 +50,32 @@ Your shows are automatically organized into three groups:
    - Shows with upcoming seasons/episodes
    - Future content you're waiting for
 
-3. **Latest Season Finished Airing**
+3. **Latest Season Recently Ended**
+   - Shows whose latest season ended in the last 90 days
+
+4. **Latest Season Finished Airing**
    - Shows that completed airing more than 90 days ago
    - Completed seasons ready to binge
 
-#### Show Cards
+You can also group by media type:
+- Movies
+- TV Shows
+- Anime
+- Anime Movies
 
-Each show displays:
-- **Poster Image**: The show's artwork
-- **Title**: Show name
-- **Year & Episode Count**: Release year and number of episodes
+#### Floating View Controls
+
+Use the round button in the bottom-right corner to change:
+- **Filter**: All, Movies, TV Shows, Anime, Anime Movies
+- **Sort**: airing date, title, rating / popularity
+- **Group**: airing date or type
+
+#### Title Cards
+
+Each title displays:
+- **Poster Image**: The title artwork
+- **Title**: Movie or show name
+- **Year & Episode Count**: Release year and episode count for shows
 - **Air Date Badge**: When the latest episode aired or will air
 
 ### 4. Features
@@ -153,7 +171,7 @@ While keyboard shortcuts aren't implemented yet, you can:
 1. **Keep It Open**: Enable auto-refresh and leave the tab open to stay updated
 2. **Dark Mode**: Use dark mode when watching shows at night
 3. **Mobile Friendly**: Add to your phone's home screen for quick access
-4. **Organization**: Shows automatically sort by most recent air date
+4. **Organization**: Titles can sort by airing date, title, or rating / popularity
 5. **Binge Planning**: Check "Finished Airing" group for complete seasons
 
 ## Common Questions
@@ -187,4 +205,3 @@ For issues, questions, or feature requests:
 ## Enjoy!
 
 Happy tracking! 🎬 📺 🍿
-

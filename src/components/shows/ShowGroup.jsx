@@ -13,7 +13,7 @@ const ShowGroup = ({ status, shows }) => {
 					{title}
 				</h2>
 				<span className="text-sm text-zinc-500 dark:text-zinc-400">
-					{shows.length} show{shows.length !== 1 ? "s" : ""}
+					{shows.length} title{shows.length !== 1 ? "s" : ""}
 				</span>
 			</div>
 			<div className="grid grid-cols-2 gap-4 pt-4 pb-12 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">

@@ -1,7 +1,14 @@
-import { useMemo } from "react";
-import { groupShows } from "../../utils/groupShows";
+import { useMemo, useState } from "react";
+import {
+	FILTER_OPTIONS,
+	GROUP_OPTIONS,
+	getGroupOrder,
+	groupShows,
+	SORT_OPTIONS,
+} from "../../utils/groupShows";
 import { Skeleton } from "../ui/Skeleton";
 import ShowGroup from "./ShowGroup";
+import ShowViewControls from "./ShowViewControls";
 
 const skeletonKeys = [
 	"skeleton-1",
@@ -13,7 +20,15 @@ const skeletonKeys = [
 ];
 
 const ShowList = ({ shows, isLoading, error }) => {
-	const groupedShows = useMemo(() => groupShows(shows), [shows]);
+	const [filter, setFilter] = useState("all");
+	const [sortBy, setSortBy] = useState("airing-date");
+	const [groupBy, setGroupBy] = useState("airing-date");
+	const [isControlsOpen, setIsControlsOpen] = useState(false);
+	const groupedShows = useMemo(
+		() => groupShows(shows, { filter, sortBy, groupBy }),
+		[filter, groupBy, shows, sortBy],
+	);
+	const groupOrder = getGroupOrder(groupBy);
 
 	if (isLoading) {
 		return (
@@ -49,34 +64,59 @@ const ShowList = ({ shows, isLoading, error }) => {
 		);
 	}
 
-	const hasShows =
-		groupedShows["finished-airing"].length > 0 ||
-		groupedShows["currently-airing"].length > 0 ||
-		groupedShows["recently-ended"].length > 0 ||
-		groupedShows["not-yet-aired"].length > 0;
+	const hasShows = groupOrder.some((group) => groupedShows[group].length > 0);
 
 	if (!hasShows) {
 		return (
-			<div className="flex min-h-[400px] items-center justify-center">
-				<div className="text-center">
-					<p className="font-semibold text-lg text-zinc-900 dark:text-zinc-50">
-						No shows in your watchlist
-					</p>
-					<p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-						Add some shows to your Plex watchlist to get started
-					</p>
+			<>
+				<div className="flex min-h-[400px] items-center justify-center">
+					<div className="text-center">
+						<p className="font-semibold text-lg text-zinc-900 dark:text-zinc-50">
+							No titles in your watchlist
+						</p>
+						<p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+							Add titles to your Plex watchlist to get started
+						</p>
+					</div>
 				</div>
-			</div>
+				<ShowViewControls
+					filter={filter}
+					filterOptions={FILTER_OPTIONS}
+					groupBy={groupBy}
+					groupOptions={GROUP_OPTIONS}
+					isOpen={isControlsOpen}
+					onFilterChange={setFilter}
+					onGroupChange={setGroupBy}
+					onSortChange={setSortBy}
+					onToggle={() => setIsControlsOpen((open) => !open)}
+					sortBy={sortBy}
+					sortOptions={SORT_OPTIONS}
+				/>
+			</>
 		);
 	}
 
 	return (
-		<div>
-			<ShowGroup status="currently-airing" shows={groupedShows["currently-airing"]} />
-			<ShowGroup status="recently-ended" shows={groupedShows["recently-ended"]} />
-			<ShowGroup status="not-yet-aired" shows={groupedShows["not-yet-aired"]} />
-			<ShowGroup status="finished-airing" shows={groupedShows["finished-airing"]} />
-		</div>
+		<>
+			<div>
+				{groupOrder.map((group) => (
+					<ShowGroup key={group} status={group} shows={groupedShows[group]} />
+				))}
+			</div>
+			<ShowViewControls
+				filter={filter}
+				filterOptions={FILTER_OPTIONS}
+				groupBy={groupBy}
+				groupOptions={GROUP_OPTIONS}
+				isOpen={isControlsOpen}
+				onFilterChange={setFilter}
+				onGroupChange={setGroupBy}
+				onSortChange={setSortBy}
+				onToggle={() => setIsControlsOpen((open) => !open)}
+				sortBy={sortBy}
+				sortOptions={SORT_OPTIONS}
+			/>
+		</>
 	);
 };
 
