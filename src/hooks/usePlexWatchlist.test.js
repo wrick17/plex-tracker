@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { hasUsableCachedShows, WATCHLIST_CACHE_VERSION } from "../stores/watchlistCacheStore";
 import { shouldRefreshCachedShows } from "./usePlexWatchlist";
 
 describe("shouldRefreshCachedShows", () => {
@@ -21,5 +22,13 @@ describe("shouldRefreshCachedShows", () => {
 	test("does not refresh without auth or cached shows", () => {
 		expect(shouldRefreshCachedShows(null, [{ ratingKey: "show-1" }], null)).toBe(false);
 		expect(shouldRefreshCachedShows("plex-token", null, null)).toBe(false);
+	});
+});
+
+describe("hasUsableCachedShows", () => {
+	test("rejects stale persisted watchlist cache versions", () => {
+		expect(hasUsableCachedShows([{ ratingKey: "show-1" }], 0)).toBe(false);
+		expect(hasUsableCachedShows([{ ratingKey: "show-1" }], WATCHLIST_CACHE_VERSION)).toBe(true);
+		expect(hasUsableCachedShows(null, WATCHLIST_CACHE_VERSION)).toBe(false);
 	});
 });

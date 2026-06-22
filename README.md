@@ -81,6 +81,7 @@ bun biome check --write src/
 ## Maintenance Notes
 
 - Cached watchlist data renders immediately on app load, then currently airing shows get one background season refresh per authenticated token. This prevents the cache write from retriggering the same Plex `children` requests indefinitely.
+- Persisted watchlist cache includes a schema version. Bump or invalidate it when cached record shape changes, especially fields used by filters such as Plex `Genre` metadata.
 - Filter categories are exact and non-overlapping: anime uses Plex genre metadata when available, then falls back to the media type so every title has one category.
 - The watchlist API is paginated; keep pagination intact so "All" really means the full watchlist.
 - Use `bun run test`, `bun run lint`, and `bun run build` before shipping changes.
