@@ -85,6 +85,7 @@ const ShowList = ({ shows, isLoading, error }) => {
 					groupBy={groupBy}
 					groupOptions={GROUP_OPTIONS}
 					isOpen={isControlsOpen}
+					onClose={() => setIsControlsOpen(false)}
 					onFilterChange={setFilter}
 					onGroupChange={setGroupBy}
 					onSortChange={setSortBy}
@@ -109,6 +110,7 @@ const ShowList = ({ shows, isLoading, error }) => {
 				groupBy={groupBy}
 				groupOptions={GROUP_OPTIONS}
 				isOpen={isControlsOpen}
+				onClose={() => setIsControlsOpen(false)}
 				onFilterChange={setFilter}
 				onGroupChange={setGroupBy}
 				onSortChange={setSortBy}

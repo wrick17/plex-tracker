@@ -8,13 +8,18 @@ export const shouldRefreshCachedShows = (authToken, cachedShows, refreshedCached
 	return Boolean(authToken && cachedShows && refreshedCachedToken !== authToken);
 };
 
+export const shouldFetchWatchlist = (authToken, isCacheHydrated, hasCachedData) => {
+	return Boolean(authToken && isCacheHydrated && !hasCachedData);
+};
+
 export const usePlexWatchlist = () => {
 	const authToken = useAuthStore((state) => state.authToken);
 	const cachedShows = useWatchlistCacheStore((state) => state.cachedShows);
+	const isCacheHydrated = useWatchlistCacheStore((state) => state.isHydrated);
 	const setCachedShows = useWatchlistCacheStore((state) => state.setCachedShows);
 	const hasCachedData = useWatchlistCacheStore((state) => state.hasCachedData);
 	const [shows, setShows] = useState(cachedShows);
-	const [isLoading, setIsLoading] = useState(!hasCachedData());
+	const [isLoading, setIsLoading] = useState(!(isCacheHydrated && hasCachedData()));
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [error, setError] = useState(null);
 	const refreshedCachedTokenRef = useRef(null);
@@ -80,6 +85,11 @@ export const usePlexWatchlist = () => {
 			return;
 		}
 
+		if (!isCacheHydrated) {
+			setIsLoading(true);
+			return;
+		}
+
 		if (hasCachedData() && cachedShows) {
 			setShows(cachedShows);
 			setIsLoading(false);
@@ -103,10 +113,18 @@ export const usePlexWatchlist = () => {
 				.finally(() => {
 					setIsRefreshing(false);
 				});
-		} else {
+		} else if (shouldFetchWatchlist(authToken, isCacheHydrated, hasCachedData())) {
 			fetchAll();
 		}
-	}, [authToken, cachedShows, fetchAll, hasCachedData, refreshCurrentlyAiring, setCachedShows]);
+	}, [
+		authToken,
+		cachedShows,
+		fetchAll,
+		hasCachedData,
+		isCacheHydrated,
+		refreshCurrentlyAiring,
+		setCachedShows,
+	]);
 
 	const data = useMemo(() => shows, [shows]);
 
